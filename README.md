@@ -21,3 +21,7 @@ A local canvas environment.
    * Mailhog: http://mailhog.internal
    * Traefik Dashboard: http://localhost:8080
 
+## Other things
+
+* Run delayed_jobs: `${RBENV_ROOT}/shims/bundle exec ./script/canvas_init run`
+
