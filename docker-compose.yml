@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+
+  db:
+    build: ./postgresql
+    environment:
+      POSTGRES_DB: canvas_development
+      POSTGRES_USER: canvas
+      POSTGRES_PASSWORD: canvas
+    volumes:
+      - db:/var/lib/postgresql/data:delegated
+
+  web:
+    build: ./canvas
+    volumes:
+      - log:/usr/src/app/log:delegated
+      - swap:/swapfile
+    labels:
+      - 'traefik.backend=web'
+      - 'traefik.port=80'
+      - 'traefik.frontend.rule=Host:web.internal'
+
+  mail:
+    image: mailhog/mailhog
+    environment:
+      VIRTUAL_HOST: mailhog.internal
+    labels:
+      - 'traefik.backend=mailhog'
+      - 'traefik.port=8025'
+      - 'traefik.frontend.rule=Host:mailhog.internal'
+
+  redis:
+    image: redis:4.0.11-alpine
+    labels:
+      - 'traefik.backend=redis'
+      - 'traefik.port=6379'
+
+  traefik:
+    image: traefik:1.6.6-alpine
+    command: -c /dev/null --web --docker --logLevel=ERROR
+    ports:
+      - '80:80'
+      - '8080:8080'
+    volumes:
+       - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  db:
+  log:
+  swap:

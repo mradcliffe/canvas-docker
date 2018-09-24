@@ -1,0 +1,8 @@
+development:
+  adapter: postgresql
+  encoding: utf8
+  database: canvas_development
+  host: db
+  username: canvas
+  password: canvas
+timeout: 5000

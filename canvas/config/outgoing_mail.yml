@@ -1,0 +1,9 @@
+development:
+  address: mail
+  port: 8025
+  user_name: "user"
+  password: "password"
+  authentication: "plain"
+  domain: "example.com"
+  outgoing_address: "canvas@example.com"
+default_name: "Instructure Canvas"

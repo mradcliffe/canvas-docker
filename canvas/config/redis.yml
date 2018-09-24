@@ -1,0 +1,4 @@
+development:
+  servers:
+    - redis://redis
+  log_style: compact

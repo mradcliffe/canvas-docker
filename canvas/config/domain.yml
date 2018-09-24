@@ -1,0 +1,3 @@
+development:
+  domain: "web.internal"
+  ssl: false

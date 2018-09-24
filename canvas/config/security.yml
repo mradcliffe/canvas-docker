@@ -1,0 +1,4 @@
+development: &default
+  # This is a random key generated for development.
+  encryption_key: "wuiCheo8Li[qu0aiBaef"
+lti_iss: 'https://canvas.instructure.com'
