@@ -15,6 +15,7 @@ COMPILE_ASSETS_STYLEGUIDE=0 \
 COMPILE_ASSETS_API_DOCS=0 \
 NODE_ENV=development \
   ${RBENV_ROOT}/shims/bundle exec rake canvas:compile_assets && \
+  ${RBENV_ROOT}/shims/bundle exec ./scripts/canvas_init start && \
   #RAILS_ENV=development ${RBENV_ROOT}/shims/bundle exec rake brand_configs:generate_and_upload_all && \
   #RAILS_ENV=development ${RBENV_ROOT}/shims/bundle exec rake db:initial_setup && \
   #${RBENV_ROOT}/shims/bundle exec rake assets:clobber && \
