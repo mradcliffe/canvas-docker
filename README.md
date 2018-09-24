@@ -23,5 +23,5 @@ A local canvas environment.
 
 ## Other things
 
-* Run delayed_jobs: `${RBENV_ROOT}/shims/bundle exec ./script/canvas_init run`
+* Run delayed_jobs: `RAILS_ENV=development ${RBENV_ROOT}/shims/bundle exec ./script/delayed_job run`
 
