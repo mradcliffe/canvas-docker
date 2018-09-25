@@ -1,6 +1,6 @@
 development:
-  address: mailhog
-  port: 8025
+  address: mail
+  port: 1025
   user_name: "user"
   password: "password"
   authentication: "plain"
