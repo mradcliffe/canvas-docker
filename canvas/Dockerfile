@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM alpine:3.8
 
 ENV APP_HOME /usr/src/app/
 ENV RAILS_ENV "production"
@@ -9,6 +9,7 @@ ENV RBENV_ROOT=/usr/local/rbenv
 ENV RBENV_VERSION=2.4.5
 ENV RBENV_DOCVERSION=2.4.5
 ENV PASSENGER_VERSION=5.2.1
+ENV BUNDLER_VERSION=1.16.1
 # ENV ac_cv_func_isnan yes
 # ENV ac_cv_func_isinf yes
 ENV DISABLE_V8_COMPILE_CACHE 1
@@ -71,29 +72,29 @@ RUN mkdir /tmp/xmlsec \
   && cd ${APP_HOME} \
   && rm -rf /tmp/xmlsec
 
-RUN	echo 'export RBENV_ROOT=/usr/local/rbenv' > /etc/profile.d/rbenv.sh\
+RUN echo 'export RBENV_ROOT=/usr/local/rbenv' > /etc/profile.d/rbenv.sh\
   &&  echo 'export PATH="$RBENV_ROOT/bin:$PATH"' >> /etc/profile.d/rbenv.sh\
   &&  echo 'export PATH="$RBENV_ROOT/shims:$PATH"' >> /etc/profile.d/rbenv.sh\
   &&  echo 'eval "$(rbenv init -)"'  >> /etc/profile.d/rbenv.sh\
   &&  chmod +x /etc/profile.d/rbenv.sh
 
-RUN	git clone https://github.com/rbenv/rbenv.git ${RBENV_ROOT} \
+RUN git clone https://github.com/rbenv/rbenv.git ${RBENV_ROOT} \
   &&  mkdir -p ${RBENV_ROOT}/plugins \
   &&  git clone https://github.com/rbenv/ruby-build.git ${RBENV_ROOT}/plugins/ruby-build \
   &&  git clone https://github.com/rbenv/rbenv-vars.git ${RBENV_ROOT}/plugins/rbenv-vars \
   &&  source /etc/profile.d/rbenv.sh
 
-RUN	${RBENV_ROOT}/bin/rbenv install ${RBENV_VERSION} \
+RUN ${RBENV_ROOT}/bin/rbenv install ${RBENV_VERSION} \
   &&  ${RBENV_ROOT}/shims/gem install passenger -v ${PASSENGER_VERSION} --no-ri --no-rdoc \
-  &&  ${RBENV_ROOT}/shims/gem install bundler \
+  &&  ${RBENV_ROOT}/shims/gem install bundler -v ${BUNDLER_VERSION} \
   &&  ${RBENV_ROOT}/shims/passenger-install-nginx-module --auto-download --auto --prefix=/opt/nginx \
   &&  ${RBENV_ROOT}/shims/passenger-config install-agent --auto \
   &&  ${RBENV_ROOT}/shims/passenger-config install-standalone-runtime --auto \
   &&  ${RBENV_ROOT}/bin/rbenv rehash
 
-RUN	rm -rf /usr/local/rbenv/versions/${RBENV_VERSION}/lib/ruby/gems/${RBENV_DOCVERSION}/doc\
-	/usr/local/rbenv/versions/${RBENV_VERSION}/lib/ruby/gems/${RBENV_DOCVERSION}/gems/passenger-${PASSENGER_VERSION}/doc \
-/usr/local/rbenv/versions/${RBENV_VERSION}/share/
+RUN rm -rf /usr/local/rbenv/versions/${RBENV_VERSION}/lib/ruby/gems/${RBENV_DOCVERSION}/doc\
+  /usr/local/rbenv/versions/${RBENV_VERSION}/lib/ruby/gems/${RBENV_DOCVERSION}/gems/passenger-${PASSENGER_VERSION}/doc \
+  /usr/local/rbenv/versions/${RBENV_VERSION}/share/
 
 RUN npm install --global yarn
 
