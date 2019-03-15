@@ -1,14 +1,13 @@
-FROM alpine:3.8
+FROM alpine:3.7
 
 ENV APP_HOME /usr/src/app/
 ENV RAILS_ENV "production"
 ENV NGINX_MAX_UPLOAD_SIZE 50m
-ENV CANVAS_VER "release/2018-10-06.05"
+ENV CANVAS_VER "release/2019-03-30.07"
 ENV ENV="/etc/profile.d/rbenv.sh"
 ENV RBENV_ROOT=/usr/local/rbenv
-# Until 2.4.5 is released we need to use a dev version because ruby.
-ENV RBENV_VERSION=2.4.0-dev
-ENV RBENV_DOCVERSION=2.4.0
+ENV RBENV_VERSION=2.4.5
+ENV RBENV_DOCVERSION=2.4.5
 ENV PASSENGER_VERSION=5.2.1
 # ENV ac_cv_func_isnan yes
 # ENV ac_cv_func_isinf yes
