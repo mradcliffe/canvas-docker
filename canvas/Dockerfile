@@ -1,18 +1,19 @@
-FROM alpine:3.8
+FROM python:2.7.17-alpine3.10
 
 ENV APP_HOME /usr/src/app/
 ENV RAILS_ENV "production"
 ENV NGINX_MAX_UPLOAD_SIZE 50m
-ENV CANVAS_VER "release/2019-03-30.07"
+ENV CANVAS_VER "release/2019-12-18.05"
 ENV ENV="/etc/profile.d/rbenv.sh"
 ENV RBENV_ROOT=/usr/local/rbenv
-ENV RBENV_VERSION=2.4.5
-ENV RBENV_DOCVERSION=2.4.5
-ENV PASSENGER_VERSION=5.2.1
+ENV RBENV_VERSION=2.4.9
+ENV RBENV_DOCVERSION=2.4.9
+ENV PASSENGER_VERSION=6.0.4
 ENV BUNDLER_VERSION=1.16.1
 # ENV ac_cv_func_isnan yes
 # ENV ac_cv_func_isinf yes
 ENV DISABLE_V8_COMPILE_CACHE 1
+ENV XMLSEC_VERSION=1.2.28
 
 USER root
 WORKDIR ${APP_HOME}
@@ -60,9 +61,9 @@ RUN apk add --no-cache build-base \
 # Compile xmlsec library because of course nothing works.
 RUN mkdir /tmp/xmlsec \
   && cd /tmp/xmlsec \
-  && wget "http://www.aleksey.com/xmlsec/download/xmlsec1-1.2.26.tar.gz" \
-  && tar zxf xmlsec1-1.2.26.tar.gz \
-  && cd xmlsec1-1.2.26 \
+  && wget "http://www.aleksey.com/xmlsec/download/xmlsec1-${XMLSEC_VERSION}.tar.gz" \
+  && tar zxf "xmlsec1-${XMLSEC_VERSION}.tar.gz" \
+  && cd "xmlsec1-${XMLSEC_VERSION}" \
   && ./configure \
         --prefix='/usr' \
         --enable-crypto-dl=no \
@@ -105,7 +106,7 @@ RUN \
   && git checkout ${CANVAS_VER} \
   && sed -i 's#1.16.4#1.16.5#' ./Gemfile.d/_before.rb \
   && ${RBENV_ROOT}/shims/bundle install --jobs 8 --path vendor/bundle \
-  && yarn install --pure-lockfile \
+  && yarn install --pure-lockfile --force \
   && for config in amazon_s3 database \
      delayed_jobs domain file_store outgoing_mail security external_migration; \
      do cp config/$config.yml.example config/$config.yml; done
