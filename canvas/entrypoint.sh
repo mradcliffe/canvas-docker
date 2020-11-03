@@ -7,6 +7,9 @@ if [ ! -d /swapfile ]; then
     swapon /swapfile
 fi
 
+# Start nginx.
+/opt/nginx/sbin/nginx -g "daemon on;"
+
 RAILS_ENV=development \
 CANVAS_BUILD_CONCURRENCY=2 \
 USE_OPTIMIZED_JS=0 \
@@ -22,4 +25,4 @@ NODE_ENV=development \
   #${RBENV_ROOT}/shims/bundle exec rake assets:clobber && \
   #${RBENV_ROOT}/shims/bundle exec rake assets:precompile && \
   #${RBENV_ROOT}/shims/bundle exec rake db:migrate && \
-  /usr/local/rbenv/shims/passenger start -p 80 -e development --log-level 4
+  /usr/local/rbenv/shims/passenger start -p 4000 -e development --log-level 4

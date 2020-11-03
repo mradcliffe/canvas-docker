@@ -4,46 +4,72 @@ services:
 
   db:
     build: ./postgresql
+    container_name: canvas_db
     environment:
       POSTGRES_DB: canvas_development
       POSTGRES_USER: canvas
       POSTGRES_PASSWORD: canvas
     volumes:
       - db:/var/lib/postgresql/data:delegated
+    labels:
+      - "traefik.tcp.services.db.loadbalancer.server.port=5432"
+      - "traefik.tcp.routers.canvas_db.entrypoints=db"
+      - "traefik.tcp.routers.canvas_db.rule=HostSNI(`db.internal`)"
+      - "traefik.tcp.routers.canvas_db.service=db"
 
   web:
     build: ./canvas
+    container_name: canvas_web
     volumes:
       - log:/usr/src/app/log:delegated
+      - ./certs:/certs:ro
       - swap:/swapfile
     labels:
-      - 'traefik.backend=web'
-      - 'traefik.port=80'
-      - 'traefik.frontend.rule=Host:web.internal'
+      - "traefik.http.middlewares.canvas_web_https.redirectscheme.scheme=https"
+      - "traefik.http.routers.canvas_web.entrypoints=web"
+      - "traefik.http.routers.canvas_web.middlewares=canvas_web_https"
+      - "traefik.http.routers.canvas_web.rule=Host(`web.internal`)"
+      - "traefik.http.routers.canvas_web_https.rule=Host(`web.internal`)"
+      - "traefik.http.routers.canvas_web_https.tls=true"
+      - "traefik.http.routers.canvas_web_https.entrypoints=websecure"
 
   mail:
     image: mailhog/mailhog
+    container_name: canvas_mail
     environment:
       VIRTUAL_HOST: mailhog.internal
     labels:
-      - 'traefik.backend=mail'
-      - 'traefik.port=8025'
-      - 'traefik.frontend.rule=Host:mailhog.internal'
+      - "traefik.http.services.canvas_mail.loadbalancer.server.port=8025"
+      - "traefik.http.routers.canvas_mail.rule=Host(`mailhog.internal`)"
 
   redis:
     image: redis:4.0.11-alpine
+    container_name: canvas_redis
     labels:
-      - 'traefik.backend=redis'
-      - 'traefik.port=6379'
+      - "traefik.tcp.services.redis.loadbalancer.server.port=6379"
+      - "traefik.tcp.routers.canvas_redis.entrypoints=redis"
+      - "traefik.tcp.routers.canvas_redis.rule=HostSNI(`db.internal`)"
+      - "traefik.tcp.routers.canvas_redis.service=redis"
 
   traefik:
-    image: traefik:1.6.6-alpine
-    command: -c /dev/null --web --docker --logLevel=ERROR
+    image: traefik:v2.3.2
+    container_name: canvas_router
+    command:
+      - --entrypoints.db.address=:5432
+      - --entrypoints.redis.address=:6379
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --api.insecure=true
+      - --providers.docker
+      - --providers.file.directory=/etc/traefik/dynamic_conf
     ports:
       - '80:80'
+      - '443:443'
       - '8080:8080'
     volumes:
        - /var/run/docker.sock:/var/run/docker.sock
+       - ./traefik.yml:/etc/traefik/dynamic_conf/conf.yml:ro
+       - ./certs:/certs:ro
 
 volumes:
   db:

@@ -117,8 +117,10 @@ RUN \
 
 COPY config/*.yml /${APP_HOME}/config/
 
+COPY nginx/nginx.conf /opt/nginx/conf/
 COPY entrypoint.sh /canvas-entrypoint.sh
 
+EXPOSE 443
 EXPOSE 80
 
 ENTRYPOINT ["/canvas-entrypoint.sh"]

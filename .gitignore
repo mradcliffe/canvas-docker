@@ -1,0 +1,7 @@
+/certs/
+Thumbs.db
+.DS_Store
+/.vs/
+/.vscode/
+/nbproject/
+/.idea/
