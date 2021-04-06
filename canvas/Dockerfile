@@ -1,19 +1,15 @@
-FROM python:2.7.17-alpine3.10
+FROM python:3.7.10-alpine3.13
 
 ENV APP_HOME /usr/src/app/
 ENV RAILS_ENV "production"
 ENV NGINX_MAX_UPLOAD_SIZE 50m
-ENV CANVAS_VER "release/2019-12-18.05"
+ENV CANVAS_VER "release/2021-03-03.17"
 ENV ENV="/etc/profile.d/rbenv.sh"
 ENV RBENV_ROOT=/usr/local/rbenv
-ENV RBENV_VERSION=2.4.9
-ENV RBENV_DOCVERSION=2.4.9
-ENV PASSENGER_VERSION=6.0.4
-ENV BUNDLER_VERSION=1.16.1
-# ENV ac_cv_func_isnan yes
-# ENV ac_cv_func_isinf yes
+ENV RBENV_VERSION=2.6.5
+ENV RBENV_DOCVERSION=2.6.5
+ENV PASSENGER_VERSION=6.0.8
 ENV DISABLE_V8_COMPILE_CACHE 1
-ENV XMLSEC_VERSION=1.2.28
 
 USER root
 WORKDIR ${APP_HOME}
@@ -53,6 +49,7 @@ RUN apk add --no-cache build-base \
   icu-dev \
   sqlite-dev \
   nodejs nodejs-npm \
+  shared-mime-info \
   tzdata \
   tar \
   procps \
@@ -86,28 +83,28 @@ RUN git clone https://github.com/rbenv/rbenv.git ${RBENV_ROOT} \
   &&  source /etc/profile.d/rbenv.sh
 
 RUN ${RBENV_ROOT}/bin/rbenv install ${RBENV_VERSION} \
-  &&  ${RBENV_ROOT}/shims/gem install passenger -v ${PASSENGER_VERSION} --no-ri --no-rdoc \
-  &&  ${RBENV_ROOT}/shims/gem install bundler -v ${BUNDLER_VERSION} \
+  &&  ${RBENV_ROOT}/shims/gem install passenger -v ${PASSENGER_VERSION} \
   &&  ${RBENV_ROOT}/shims/passenger-install-nginx-module --auto-download --auto --prefix=/opt/nginx \
   &&  ${RBENV_ROOT}/shims/passenger-config install-agent --auto \
   &&  ${RBENV_ROOT}/shims/passenger-config install-standalone-runtime --auto \
   &&  ${RBENV_ROOT}/bin/rbenv rehash
 
-RUN rm -rf /usr/local/rbenv/versions/${RBENV_VERSION}/lib/ruby/gems/${RBENV_DOCVERSION}/doc\
-  /usr/local/rbenv/versions/${RBENV_VERSION}/lib/ruby/gems/${RBENV_DOCVERSION}/gems/passenger-${PASSENGER_VERSION}/doc \
-  /usr/local/rbenv/versions/${RBENV_VERSION}/share/
-
-RUN npm install --global yarn
+RUN npm install --global yarn@1
 
 RUN \
   # Never use git:// because not everyone can use it.
   git config --global url."https://".insteadOf git:// \
   && git clone https://github.com/instructure/canvas-lms.git ${APP_HOME} \
-  && git checkout ${CANVAS_VER} \
-  && sed -i 's#1.16.4#1.16.5#' ./Gemfile.d/_before.rb \
-  && ${RBENV_ROOT}/shims/bundle install --jobs 8 --path vendor/bundle \
-  && yarn install --pure-lockfile --force \
-  && for config in amazon_s3 database \
+  && git checkout ${CANVAS_VER}
+
+RUN \
+  ${RBENV_ROOT}/shims/bundle install --jobs 8 --path vendor/bundle \
+  && rm -rf .yarncache \
+  && yarn install --pure-lockfile --force --cache-folder .yarncache --network-concurrency 1 \
+  && rm -rf .yarncache/
+
+RUN \
+  for config in amazon_s3 database \
      delayed_jobs domain file_store outgoing_mail security external_migration; \
      do cp config/$config.yml.example config/$config.yml; done
 

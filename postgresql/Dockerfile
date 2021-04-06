@@ -1,4 +1,4 @@
-FROM postgres:9.6.10-alpine
+FROM postgres:12.4-alpine
 
 RUN apk add --no-cache -t .postgres-run-deps \
   ca-certificates \
@@ -18,4 +18,6 @@ RUN pgxnclient download --yes --target ~ pg_collkey=${PG_COLLKEY_VERSION} \
   && sed '/^DATA = \$(wildcard/d' Makefile.orig > Makefile \
   && make \
   && make install
+COPY config/postgresql.conf /usr/local/share/postgresql/postgresql.conf
 
+CMD [ "postgres", "-c", "config_file=/usr/local/share/postgresql/postgresql.conf" ]
