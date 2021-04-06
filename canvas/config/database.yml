@@ -5,4 +5,3 @@ development:
   host: db
   username: canvas
   password: canvas
-timeout: 5000
