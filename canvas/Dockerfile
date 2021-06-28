@@ -4,13 +4,9 @@ ENV APP_HOME /usr/src/app/
 ENV RAILS_ENV "production"
 ENV NGINX_MAX_UPLOAD_SIZE 50m
 ENV CANVAS_VER "release/2021-03-03.17"
-ENV ENV="/etc/profile.d/rbenv.sh"
-ENV RBENV_ROOT=/usr/local/rbenv
-ENV RBENV_VERSION=2.6.5
-ENV RBENV_DOCVERSION=2.6.5
 ENV PASSENGER_VERSION=6.0.8
 ENV DISABLE_V8_COMPILE_CACHE 1
-ENV XMLSEC_VERSION=1.2.28
+ENV XMLSEC_VERSION=1.2.30
 
 USER root
 WORKDIR ${APP_HOME}
@@ -54,7 +50,8 @@ RUN apk add --no-cache build-base \
   tzdata \
   tar \
   procps \
-  procps-dev
+  procps-dev \
+  ruby ruby-dev ruby-bundler ruby-doc ruby-etc ruby-json
 
 # Compile xmlsec library because of course nothing works.
 RUN mkdir /tmp/xmlsec \
@@ -71,24 +68,10 @@ RUN mkdir /tmp/xmlsec \
   && cd ${APP_HOME} \
   && rm -rf /tmp/xmlsec
 
-RUN echo 'export RBENV_ROOT=/usr/local/rbenv' > /etc/profile.d/rbenv.sh\
-  &&  echo 'export PATH="$RBENV_ROOT/bin:$PATH"' >> /etc/profile.d/rbenv.sh\
-  &&  echo 'export PATH="$RBENV_ROOT/shims:$PATH"' >> /etc/profile.d/rbenv.sh\
-  &&  echo 'eval "$(rbenv init -)"'  >> /etc/profile.d/rbenv.sh\
-  &&  chmod +x /etc/profile.d/rbenv.sh
-
-RUN git clone https://github.com/rbenv/rbenv.git ${RBENV_ROOT} \
-  &&  mkdir -p ${RBENV_ROOT}/plugins \
-  &&  git clone https://github.com/rbenv/ruby-build.git ${RBENV_ROOT}/plugins/ruby-build \
-  &&  git clone https://github.com/rbenv/rbenv-vars.git ${RBENV_ROOT}/plugins/rbenv-vars \
-  &&  source /etc/profile.d/rbenv.sh
-
-RUN ${RBENV_ROOT}/bin/rbenv install ${RBENV_VERSION} \
-  &&  ${RBENV_ROOT}/shims/gem install passenger -v ${PASSENGER_VERSION} \
-  &&  ${RBENV_ROOT}/shims/passenger-install-nginx-module --auto-download --auto --prefix=/opt/nginx \
-  &&  ${RBENV_ROOT}/shims/passenger-config install-agent --auto \
-  &&  ${RBENV_ROOT}/shims/passenger-config install-standalone-runtime --auto \
-  &&  ${RBENV_ROOT}/bin/rbenv rehash
+RUN gem install passenger -v ${PASSENGER_VERSION} \
+  && passenger-install-nginx-module --auto-download --auto --prefix=/opt/nginx \
+  && passenger-config install-agent --auto \
+  && passenger-config install-standalone-runtime --auto
 
 RUN npm install --global yarn@1
 
@@ -99,7 +82,8 @@ RUN \
   && git checkout ${CANVAS_VER}
 
 RUN \
-  ${RBENV_ROOT}/shims/bundle install --jobs 8 --path vendor/bundle \
+  bundle config set --local path 'vendor/bundle' \
+  bundle install --jobs 8 \
   && rm -rf .yarncache \
   && yarn install --pure-lockfile --force --cache-folder .yarncache --network-concurrency 1 \
   && rm -rf .yarncache/

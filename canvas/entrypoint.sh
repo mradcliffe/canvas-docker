@@ -17,12 +17,12 @@ DISABLE_HAPPYPACK=1 \
 COMPILE_ASSETS_STYLEGUIDE=0 \
 COMPILE_ASSETS_API_DOCS=0 \
 NODE_ENV=development \
-  ${RBENV_ROOT}/shims/bundle exec rake canvas:compile_assets && \
+  bundle exec rake canvas:compile_assets && \
   # This isn't working but it's working manually?
-  # ${RBENV_ROOT}/shims/bundle exec ./scripts/canvas_init start && \
-  #RAILS_ENV=development ${RBENV_ROOT}/shims/bundle exec rake brand_configs:generate_and_upload_all && \
-  #RAILS_ENV=development ${RBENV_ROOT}/shims/bundle exec rake db:initial_setup && \
-  #${RBENV_ROOT}/shims/bundle exec rake assets:clobber && \
-  #${RBENV_ROOT}/shims/bundle exec rake assets:precompile && \
-  #${RBENV_ROOT}/shims/bundle exec rake db:migrate && \
-  /usr/local/rbenv/shims/passenger start -p 4000 -e development --log-level 4
+  # bundle exec ./scripts/canvas_init start && \
+  # bundle exec rake brand_configs:generate_and_upload_all && \
+  # RAILS_ENV=development bundle exec rake db:initial_setup && \
+  # bundle exec rake assets:clobber && \
+  # bundle exec rake assets:precompile && \
+  # bundle exec rake db:migrate && \
+  passenger start -p 4000 -e development --log-level 4
