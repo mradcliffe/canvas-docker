@@ -51,7 +51,7 @@ RUN apk add --no-cache build-base \
   tar \
   procps \
   procps-dev \
-  ruby ruby-dev ruby-bundler ruby-doc ruby-etc ruby-json
+  ruby ruby-dev ruby-bundler ruby-doc ruby-etc ruby-json ruby-rake
 
 # Compile xmlsec library because of course nothing works.
 RUN mkdir /tmp/xmlsec \
