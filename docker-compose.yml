@@ -24,6 +24,11 @@ services:
       - log:/usr/src/app/log:delegated
       - ./certs:/certs:ro
       - swap:/swapfile
+    environment:
+      CANVAS_LMS_ADMIN_EMAIL: $CANVAS_LMS_ADMIN_EMAIL
+      CANVAS_LMS_ADMIN_PASSWORD: $CANVAS_LMS_ADMIN_PASSWORD
+      CANVAS_LMS_ACCOUNT_NAME: $CANVAS_LMS_ACCOUNT_NAME
+      CANVAS_LMS_STATS_COLLECTION: $CANVAS_LMS_STATS_COLLECTION
     labels:
       - "traefik.http.middlewares.canvas_web_https.redirectscheme.scheme=https"
       - "traefik.http.routers.canvas_web.entrypoints=web"
