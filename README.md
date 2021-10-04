@@ -20,8 +20,8 @@ A production-like, **local** [canvas-lms](https://github.com/instructure/canvas-
    * `localhost canvas.internal mail.canvas.internal db.canvas.internal`
    * Clear your DNS cache: `dscachutil -flushcache` or `ipconfig \flushdns` or whatever it is on Windows.
 * The following URLs should be up and running:
-   * Canvas: https://web.internal
-   * Mailhog: http://mailhog.internal
+   * Canvas: https://canvas.internal
+   * Mailhog: http://mail.canvas.internal
    * Traefik Dashboard: http://localhost:8080
 
 ## Other things
