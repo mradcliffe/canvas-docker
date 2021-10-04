@@ -3,38 +3,42 @@ version: '3'
 services:
 
   db:
-    build: ./postgresql
+    image: instructure/postgres:11
     container_name: canvas_db
     environment:
       POSTGRES_DB: canvas_development
-      POSTGRES_USER: canvas
       POSTGRES_PASSWORD: canvas
     volumes:
       - db:/var/lib/postgresql/data:delegated
     labels:
       - "traefik.tcp.services.db.loadbalancer.server.port=5432"
       - "traefik.tcp.routers.canvas_db.entrypoints=db"
-      - "traefik.tcp.routers.canvas_db.rule=HostSNI(`db.internal`)"
+      - "traefik.tcp.routers.canvas_db.rule=HostSNI(`db.canvas.internal`)"
       - "traefik.tcp.routers.canvas_db.service=db"
 
   web:
     build: ./canvas
     container_name: canvas_web
+    image: mradcliffe2/docker-canvas-web
     volumes:
       - log:/usr/src/app/log:delegated
       - ./certs:/certs:ro
       - swap:/swapfile
     environment:
+      RAILS_ENV: development
+      CANVAS_DATABASE_HOST: db
+      POSTGRES_PASSWORD: canvas
       CANVAS_LMS_ADMIN_EMAIL: $CANVAS_LMS_ADMIN_EMAIL
       CANVAS_LMS_ADMIN_PASSWORD: $CANVAS_LMS_ADMIN_PASSWORD
       CANVAS_LMS_ACCOUNT_NAME: $CANVAS_LMS_ACCOUNT_NAME
       CANVAS_LMS_STATS_COLLECTION: $CANVAS_LMS_STATS_COLLECTION
+      ENCRYPTION_KEY: $ENCRYPTION_KEY
     labels:
       - "traefik.http.middlewares.canvas_web_https.redirectscheme.scheme=https"
       - "traefik.http.routers.canvas_web.entrypoints=web"
       - "traefik.http.routers.canvas_web.middlewares=canvas_web_https"
-      - "traefik.http.routers.canvas_web.rule=Host(`web.internal`)"
-      - "traefik.http.routers.canvas_web_https.rule=Host(`web.internal`)"
+      - "traefik.http.routers.canvas_web.rule=Host(`canvas.internal`)"
+      - "traefik.http.routers.canvas_web_https.rule=Host(`canvas.internal`)"
       - "traefik.http.routers.canvas_web_https.tls=true"
       - "traefik.http.routers.canvas_web_https.entrypoints=websecure"
 
@@ -42,10 +46,10 @@ services:
     image: mailhog/mailhog
     container_name: canvas_mail
     environment:
-      VIRTUAL_HOST: mailhog.internal
+      VIRTUAL_HOST: mail.canvas.internal
     labels:
       - "traefik.http.services.canvas_mail.loadbalancer.server.port=8025"
-      - "traefik.http.routers.canvas_mail.rule=Host(`mailhog.internal`)"
+      - "traefik.http.routers.canvas_mail.rule=Host(`mail.canvas.internal`)"
 
   redis:
     image: redis:4.0.11-alpine
@@ -53,7 +57,7 @@ services:
     labels:
       - "traefik.tcp.services.redis.loadbalancer.server.port=6379"
       - "traefik.tcp.routers.canvas_redis.entrypoints=redis"
-      - "traefik.tcp.routers.canvas_redis.rule=HostSNI(`db.internal`)"
+      - "traefik.tcp.routers.canvas_redis.rule=HostSNI(`db.canvas.internal`)"
       - "traefik.tcp.routers.canvas_redis.service=redis"
 
   traefik:

@@ -1,9 +1,10 @@
-FROM python:3.7.10-alpine3.13
+FROM python:3.7.10-alpine3.14
 
 ENV APP_HOME /usr/src/app/
-ENV RAILS_ENV "production"
+ENV RAILS_ENV "development"
 ENV NGINX_MAX_UPLOAD_SIZE 50m
-ENV CANVAS_VER "release/2021-03-03.17"
+ENV CANVAS_VER "release/2021-09-15.01"
+ENV BUNDLER_VERSION=2.2.19
 ENV PASSENGER_VERSION=6.0.8
 ENV DISABLE_V8_COMPILE_CACHE 1
 ENV XMLSEC_VERSION=1.2.30
@@ -15,13 +16,13 @@ RUN apk add --no-cache build-base \
   linux-headers \
   autoconf automake \
   gnupg \
-  libressl \
   gcc \
   bash \
   vim \
   ca-certificates \
   wget \
   git \
+  libffi \
   libxml2 libxml2-dev libxslt libxslt-dev \
   make \
   patch \
@@ -30,7 +31,6 @@ RUN apk add --no-cache build-base \
   unzip \
   zlib \
   zlib-dev \
-  ruby \
   bison \
   bind-tools \
   bzip2 \
@@ -45,13 +45,13 @@ RUN apk add --no-cache build-base \
   rsync \
   icu-dev \
   sqlite-dev \
-  nodejs nodejs-npm \
+  nodejs npm \
   shared-mime-info \
   tzdata \
   tar \
   procps \
   procps-dev \
-  ruby ruby-dev ruby-bundler ruby-doc ruby-etc ruby-json ruby-rake
+  ruby ruby-dev ruby-doc ruby-etc ruby-json ruby-rake ruby-bigdecimal ruby-fiddle
 
 # Compile xmlsec library because of course nothing works.
 RUN mkdir /tmp/xmlsec \
@@ -68,6 +68,8 @@ RUN mkdir /tmp/xmlsec \
   && cd ${APP_HOME} \
   && rm -rf /tmp/xmlsec
 
+RUN gem install bundler -v ${BUNDLER_VERSION}
+
 RUN gem install passenger -v ${PASSENGER_VERSION} \
   && passenger-install-nginx-module --auto-download --auto --prefix=/opt/nginx \
   && passenger-config install-agent --auto \
@@ -81,12 +83,7 @@ RUN \
   && git clone https://github.com/instructure/canvas-lms.git ${APP_HOME} \
   && git checkout ${CANVAS_VER}
 
-RUN \
-  bundle config set --local path 'vendor/bundle' \
-  bundle install --jobs 8 \
-  && rm -rf .yarncache \
-  && yarn install --pure-lockfile --force --cache-folder .yarncache --network-concurrency 1 \
-  && rm -rf .yarncache/
+COPY config/*.yml /${APP_HOME}/config/
 
 RUN \
   for config in amazon_s3 database \
@@ -97,10 +94,18 @@ RUN \
   rm -rf /opt/nginx/html && \
   ln -s ${APP_HOME}/public /opt/nginx/html
 
-COPY config/*.yml /${APP_HOME}/config/
+RUN bundle config set --local path 'vendor/bundle'
+
+# @todo bundle config set --local --without pulsar doesn't seem to work.
+RUN bundle install --without pulsar
+
+RUN yarn install --pure-lockfile --force --cache-folder .yarncache --network-concurrency 1 \
+  && yarn cache clean
 
 COPY nginx/nginx.conf /opt/nginx/conf/
 COPY entrypoint.sh /canvas-entrypoint.sh
+
+COPY config/*.yml ${APP_HOME}/config/
 
 EXPOSE 443
 EXPOSE 80

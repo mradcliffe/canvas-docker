@@ -1,4 +1,4 @@
-development:
+common: &common
   address: mail
   port: 1025
   user_name: "user"
@@ -6,4 +6,14 @@ development:
   authentication: "plain"
   domain: "example.com"
   outgoing_address: "canvas@example.com"
+
+development:
+  <<: *common
+
+production:
+  <<: *common
+
+test:
+  <<: *common
+
 default_name: "Instructure Canvas"

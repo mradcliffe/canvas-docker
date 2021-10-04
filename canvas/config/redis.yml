@@ -2,3 +2,13 @@ development:
   servers:
     - redis://redis
   log_style: compact
+
+production:
+  servers:
+    - redis://redis
+  log_style: compact
+
+test:
+  servers:
+    - redis://redis
+  log_style: compact

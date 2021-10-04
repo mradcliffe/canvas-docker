@@ -1,4 +1,13 @@
-development: &default
+common: &default
   # This is a pre-generated random key required by canvas.
-  encryption_key: "wuiCheo8Li[qu0aiBaef"
-lti_iss: 'https://canvas.instructure.com'
+  encryption_key: <%= ENV["ENCRYPTION_KEY"] %>
+  lti_iss: 'https://canvas.instructure.com'
+
+development:
+  <<: *default
+
+production:
+  <<: *default
+
+test:
+  <<: *default

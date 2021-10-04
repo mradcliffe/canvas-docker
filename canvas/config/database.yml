@@ -1,7 +1,24 @@
-development:
+common: &common
   adapter: postgresql
   encoding: utf8
-  database: canvas_development
   host: db
-  username: canvas
+  username: postgres
   password: canvas
+  prepared_statements: false
+  use_qualified_names: true
+  shard_name: public
+  schema_search_path: "''"
+  timeout: 5000
+
+production:
+  <<: *common
+  database: canvas_production
+
+development:
+  <<: *common
+  database: canvas_development
+
+test:
+  <<: *common
+  database: canvas_test
+

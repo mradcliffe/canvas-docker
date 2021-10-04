@@ -1,3 +1,7 @@
 development:
   domain: "web.internal"
   ssl: true
+
+production:
+  domain: "web.internal"
+  ssl: true
