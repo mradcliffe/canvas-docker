@@ -1,7 +1,7 @@
 development:
-  domain: "web.internal"
+  domain: "canvas.internal"
   ssl: true
 
 production:
-  domain: "web.internal"
+  domain: "canvas.internal"
   ssl: true
