@@ -17,11 +17,11 @@ A production-like, **local** [canvas-lms](https://github.com/instructure/canvas-
    * Get into the web container: `docker exec -ti canvas_web /bin/bash`
    * Run the initial setup: `RAILS_ENV=development bundle exec rake db:initial_setup`
 * Modify your `/etc/hosts` file:
-   * `localhost canvas.internal mail.canvas.internal db.canvas.internal`
+   * `localhost canvas.internal db.canvas.internal`
    * Clear your DNS cache: `dscachutil -flushcache` or `ipconfig \flushdns` or whatever it is on Windows.
 * The following URLs should be up and running:
    * Canvas: https://canvas.internal
-   * Mailhog: http://mail.canvas.internal
+   * Mailhog: http://canvas.internal:8025
    * Traefik Dashboard: http://localhost:8080
 
 ## Other things
