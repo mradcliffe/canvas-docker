@@ -17,7 +17,6 @@ services:
       - "traefik.tcp.routers.canvas_db.service=db"
 
   web:
-    build: ./canvas
     container_name: canvas_web
     image: mradcliffe2/docker-canvas-web
     volumes:
