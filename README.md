@@ -2,6 +2,7 @@
 
 A production-like, **local** [canvas-lms](https://github.com/instructure/canvas-lms) environment.
 
+
 ## Requirements
 
 1. Docker (Docker for Mac, Docker for Windows, docker-ce)

@@ -3,7 +3,7 @@ version: '3'
 services:
 
   db:
-    image: instructure/postgres:11
+    image: postgres:14
     container_name: canvas_db
     environment:
       POSTGRES_DB: canvas_development
@@ -18,7 +18,7 @@ services:
 
   web:
     container_name: canvas_web
-    image: mradcliffe2/docker-canvas-web
+    image: mradcliffe2/docker-canvas-web:2023-03-01
     volumes:
       - log:/usr/src/app/log:delegated
       - ./certs:/certs:ro
