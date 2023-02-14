@@ -112,8 +112,8 @@ COPY config/*.yml /${APP_HOME}/config/
 # to have in a production-like development environment because I don't know
 # how to do it any better than removing the file.
 RUN \
-  for config in amazon_s3 database \
-     domain file_store outgoing_mail security external_migration; \
+  for config in amazon_s3 database domain file_store outgoing_mail \
+     security external_migration ; \
      do cp config/$config.yml.example config/$config.yml; done ; \
   for rake_file in pact pact_broker rspec ; \
      do rm lib/tasks/$rake_file.rake ; done

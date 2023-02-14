@@ -16,6 +16,7 @@ A production-like, **local** [canvas-lms](https://github.com/instructure/canvas-
    a. Set a password that adheres to Canvas LMS password requirements (8 length minimum with number and non-alphanumeric character).
    b. Add a 20-character encryption key. You can use a password generator like `pwgen`.
    c. Configure any port mapping in case you have port 80, 443, 8080 or 8025 in-use locally.
+      This is mainly only useful for `TRAEFIK_PORT` or `MAILHOG_PORT` and not supported for nginx.
 3. Run `docker-compose up` in Terminal, PowerShell, Git-Bsh or Docker Quickstart Terminal.
    * This will take a while to run Canvas LMS rake command as it builds a plethora of front-end frameworks.
 4. Run the initial setup:
