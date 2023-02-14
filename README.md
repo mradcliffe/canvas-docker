@@ -9,18 +9,22 @@ A production-like, **local** [canvas-lms](https://github.com/instructure/canvas-
 
 ## Getting Started
 
-* Run `openssl req -newkey rsa:2048 -nodes -keyout certs/default.key -x509 -days 365 -out certs/default.crt` in Terminal or get someone to generate a SSL certificate and private key.
+1. Generate a SSL certificate using `openssl`:
+   * Run `openssl req -newkey rsa:2048 -nodes -keyout certs/default.key -x509 -days 365 -out certs/default.crt`.
    * (Windows) This is available in an Ubuntu machine running on Windows Subsystem for Linux 2.
-* Copy `.env.example` to `.env`. Add a complex password in the .env file and add a 20-character encryption key (use a password generator).
-* Run `docker compose up` in Terminal, PowerShell, Git-Bash or Docker Quickstart Terminal. This takes a long time to build canvas.
-   * Note the canvas docker image will take forever to build AND it will take forever to spin up as the plethora of canvas' front-end frameworks are built.
-* Run the initial setup:
-   * Get into the web container: `docker exec -ti canvas_web /bin/bash`
-   * Run the initial setup: `RAILS_ENV=development bundle exec rake db:initial_setup`
-* Modify your `/etc/hosts` file:
-   * `localhost canvas.internal db.canvas.internal`
-   * Clear your DNS cache: `dscachutil -flushcache` or `ipconfig \flushdns` or whatever it is on Windows.
-* The following URLs should be up and running:
+2. Copy `.env.example` to `.env`.
+   a. Set a password that adheres to Canvas LMS password requirements (8 length minimum with number and non-alphanumeric character).
+   b. Add a 20-character encryption key. You can use a password generator like `pwgen`.
+   c. Configure any port mapping in case you have port 80, 443, 8080 or 8025 in-use locally.
+3. Run `docker-compose up` in Terminal, PowerShell, Git-Bsh or Docker Quickstart Terminal.
+   * This will take a while to run Canvas LMS rake command as it builds a plethora of front-end frameworks.
+4. Run the initial setup:
+   a. Get into the web container: `docker exec -ti canvas_web /bin/bash`
+   b. Run the initial setup: `RAILS_ENV=development bundle exec rake db:initial_setup`
+5. Update and clear your DNS cache:
+   a. Modify your `/etc/hosts` file with an additional line at the bottom: `localhost canvas.internal db.canvas.internal`
+   b. Clear your DNS cache: `dscacheutil -flushcache` or `ipconfig \flushdns` or whatever it is on Windows.
+6. The following URLs should be up and running with the appropriate ports configured in 2c above:
    * Canvas: https://canvas.internal
    * Mailhog: http://canvas.internal:8025
    * Traefik Dashboard: http://localhost:8080
